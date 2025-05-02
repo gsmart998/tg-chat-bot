@@ -11,6 +11,7 @@ from aiogram.utils import markdown
 from chat_bot.config import get_logger, settings
 from chat_bot.crud import create_user
 from chat_bot.database import check_database_connection
+from chat_bot.redis_client import check_redis_connection, redis_client
 
 # Get configured logger
 log = get_logger(__name__)
@@ -103,7 +104,7 @@ async def async_main() -> None:
     """
     # Check the connection to the database before starting the bot
     await check_database_connection()
-
+    await check_redis_connection()
     try:
         # Update Bot commands list
         await bot.set_my_commands(commands=bot_commands)
@@ -112,7 +113,11 @@ async def async_main() -> None:
         log.exception("Bot commands have not been updated")
 
     # And the run events dispatching
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await redis_client.aclose()
+        log.info("Redis client session closed")
 
 
 def main() -> None:

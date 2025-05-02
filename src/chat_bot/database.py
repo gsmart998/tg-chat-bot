@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 
 from sqlalchemy import Integer, func, text
@@ -63,6 +62,7 @@ async def check_database_connection() -> None:
             stmt = text("SELECT 1")
             await session.execute(stmt)
         log.info("✅ Successful connection to the database")
-    except (OSError, OperationalError):
+    except (OSError, OperationalError) as e:
         log.exception("❌ Database connection error, exiting...")
-        sys.exit(1)
+        msg = "Database connection error"
+        raise RuntimeError(msg) from e
