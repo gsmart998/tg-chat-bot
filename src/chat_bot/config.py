@@ -3,12 +3,6 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Check if .env file exists
-env_path = Path(__file__).resolve().parent.parent.parent / ".env"
-if not env_path.exists():
-    msg = f".env file not found at {env_path}"
-    raise FileNotFoundError(msg)
-
 
 class Settings(BaseSettings):
     """Settings class for the application.
@@ -41,7 +35,7 @@ class Settings(BaseSettings):
     # Basic settings
     LOG_LEVEL: str = "INFO"
 
-    model_config = SettingsConfigDict(env_file=env_path)
+    model_config = SettingsConfigDict(env_file=".env")
 
     @property
     def REDIS_TTL_SECONDS(self) -> int:  # noqa: N802

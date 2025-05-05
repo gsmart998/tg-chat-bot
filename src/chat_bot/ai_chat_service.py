@@ -36,7 +36,7 @@ async def handle_user_message(
     tg_id: int,
     message_text: str,
     mode: ChatMode = ChatMode.NEUTRAL,
-) -> None:
+) -> str:
     """Handle user message and get response from OpenAI.
 
     Args:
