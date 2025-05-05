@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from chat_bot.config import get_logger
 from chat_bot.database import async_session_maker
+from chat_bot.enums import ChatMode
 from chat_bot.models import User
 
 # Get configured logger
@@ -60,3 +61,49 @@ async def create_user(tg_id: int, first_name: str) -> bool:
 
         else:
             return True
+
+
+async def set_user_chat_mode(tg_id: int, chat_mode: ChatMode) -> bool:
+    """Set the chat mode of a user by their Telegram ID.
+
+    Args:
+        tg_id (int): Telegram user ID.
+        chat_mode (ChatMode): Chat mode to set.
+
+    Returns:
+        bool: True if the chat mode was successfully set, False otherwise.
+
+    """
+    async with async_session_maker() as session:
+        try:
+            user = await get_user_by_tg_id(session=session, tg_id=tg_id)
+            if not user:
+                log.info("User with tg_id=%s not found", tg_id)
+                return False
+            user.chat_mode = chat_mode
+            session.commit()
+        except Exception:
+            log.exception("Failed to set user chat mode")
+            return False
+        else:
+            log.info("User chat mode updated: tg_id=%s, chat_mode=%s", tg_id, chat_mode)
+            return True
+
+
+async def get_user_chat_mode(tg_id: int) -> ChatMode:
+    """Get the chat mode of a user by their Telegram ID.
+
+    Args:
+        tg_id (int): Telegram user ID.
+
+    Returns:
+        ChatMode: The chat mode of the user.
+
+    """
+    async with async_session_maker() as session:
+        user = await get_user_by_tg_id(session=session, tg_id=tg_id)
+        if user:
+            log.info("User with tg_id=%s found, chat mode: %s", tg_id, user.chat_mode)
+            return user.chat_mode
+        log.info("User with tg_id=%s not found, defaulting to 'NEUTRAL'", tg_id)
+        return ChatMode.NEUTRAL

@@ -22,7 +22,6 @@ class Settings(BaseSettings):
 
     # OpenAI API settings
     API_KEY: str
-    BASE_URL: str
     MODEL: str
 
     # PostgreSQL
@@ -36,11 +35,18 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
+    REDIS_TTL_HOURS: int = 12
+    REDIS_MAX_MESSAGES: int = 40
 
     # Basic settings
     LOG_LEVEL: str = "INFO"
 
     model_config = SettingsConfigDict(env_file=env_path)
+
+    @property
+    def REDIS_TTL_SECONDS(self) -> int:  # noqa: N802
+        """Get the Redis TTL in seconds."""
+        return self.REDIS_TTL_HOURS * 60 * 60
 
     def get_postgres_url(self) -> str:
         """Get the PostgreSQL database URL.

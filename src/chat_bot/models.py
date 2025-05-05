@@ -1,7 +1,9 @@
 from sqlalchemy import BigInteger
+from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from chat_bot.database import Base
+from chat_bot.enums import ChatMode
 
 
 class User(Base):
@@ -9,7 +11,14 @@ class User(Base):
 
     tg_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False)
     first_name: Mapped[str] = mapped_column(nullable=False)
-    username: Mapped[str | None] = mapped_column(unique=True)
+    chat_mode: Mapped[ChatMode] = mapped_column(
+        SqlEnum(
+            ChatMode,
+            name="chat_mode_enum",
+        ),
+        nullable=False,
+        default=ChatMode.NEUTRAL,
+    )
 
     def __init__(
         self,

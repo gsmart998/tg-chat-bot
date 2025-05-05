@@ -18,6 +18,8 @@ redis_client: Redis = Redis(
 async def check_redis_connection() -> None:
     """Check the connection to the Redis server."""
     log.info("Checking Redis server connection...")
+    log.debug("Current Redis TTL hours: %s", settings.REDIS_TTL_HOURS)
+    log.debug("Current Redis TTL seconds: %s", settings.REDIS_TTL_SECONDS)
     try:
         response = await redis_client.ping()
         if response:
